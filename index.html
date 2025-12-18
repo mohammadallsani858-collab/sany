@@ -2,80 +2,140 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>আমার আড্ডাবাজ বন্ধু</title>
+    <title>friendall - আমার AI বন্ধু</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e5ddd5; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .chat-container { width: 100%; max-width: 450px; height: 90vh; background: #fff; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-radius: 15px; overflow: hidden; }
-        .header { background: #075e54; color: white; padding: 20px; text-align: center; font-size: 1.2rem; font-weight: bold; }
-        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; background: #efe7dd; gap: 15px; }
-        .message { padding: 10px 15px; border-radius: 10px; max-width: 75%; font-size: 1rem; line-height: 1.4; position: relative; }
-        .user { align-self: flex-end; background: #dcf8c6; color: #000; border-bottom-right-radius: 2px; }
-        .bot { align-self: flex-start; background: #ffffff; color: #000; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .input-area { display: flex; padding: 15px; background: #f0f0f0; border-top: 1px solid #ddd; }
-        input { flex: 1; padding: 12px; border: none; border-radius: 25px; outline: none; font-size: 1rem; }
-        button { background: #075e54; color: white; border: none; width: 45px; height: 45px; margin-left: 10px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .typing { font-style: italic; font-size: 0.8rem; color: #777; margin-bottom: 5px; display: none; padding-left: 20px; }
+        /* পুরো স্ক্রিন কালো ব্যাকগ্রাউন্ড */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #121212; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            margin: 0;
+        }
+        .chat-box { 
+            width: 100%; 
+            max-width: 450px; 
+            background: #1e1e1e; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            height: 90vh; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        .header { 
+            background: #000000; 
+            color: #00ff88; 
+            padding: 15px; 
+            text-align: center; 
+            font-size: 1.3rem; 
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+        }
+        #messages { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            background: #121212; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        .msg { 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            max-width: 80%; 
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+        .user { 
+            align-self: flex-end; 
+            background: #005c4b; 
+            color: white; 
+            border-bottom-right-radius: 2px; 
+        }
+        .bot { 
+            align-self: flex-start; 
+            background: #262626; 
+            color: #e0e0e0; 
+            border-bottom-left-radius: 2px; 
+        }
+        .input-area { 
+            display: flex; 
+            padding: 15px; 
+            background: #1e1e1e; 
+            border-top: 1px solid #333;
+        }
+        input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #444; 
+            border-radius: 25px; 
+            outline: none; 
+            background: #2a2a2a;
+            color: white;
+            padding-left: 20px;
+        }
+        button { 
+            background: #00ff88; 
+            color: #000; 
+            border: none; 
+            padding: 10px 20px; 
+            margin-left: 10px; 
+            cursor: pointer; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            transition: 0.3s;
+        }
+        button:hover { background: #00cc6e; }
     </style>
 </head>
 <body>
-
-<div class="chat-container">
-    <div class="header">🤖 আড্ডাবাজ বন্ধু</div>
-    <div id="chat-window">
-        <div class="message bot">কিরে দোস্ত! আমি রেডি। বল কী খবর?</div>
+    <div class="chat-box">
+        <div class="header">🤖 friendall</div>
+        <div id="messages">
+            <div class="msg bot">হ্যালো! আমি <b>friendall</b>। ডার্ক মোডে আড্ডা দিতে আমি তৈরি। কেমন আছ বন্ধু?</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="friendall-কে কিছু বলো..." onkeypress="if(event.key==='Enter') ask()">
+            <button onclick="ask()">➔</button>
+        </div>
     </div>
-    <div id="typing-status" class="typing">বন্ধু টাইপ করছে...</div>
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="এখানে লেখো..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">➔</button>
-    </div>
-</div>
 
-<script type="module">
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    // আপনার দেওয়া API Key এখানে বসিয়ে দিয়েছি
-    const API_KEY = "AIzaSyBQs5NfJ1IBUFha8ht_Ae_cg9AOD1zTo8g";
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    
-    const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: "তুমি একজন খুব মজার বন্ধু। নাম 'বন্ধু'। সবসময় সহজ বাংলায় কথা বলবে।"
-    });
+        // এখানে আপনার নতুন কপি করা Key-টি সাবধানে বসান
+        const API_KEY = "AIzaSyC0EfpDPaX9z47Z_MyOQ1Xn-2279DxxroA"; 
 
-    const chat = model.startChat({ history: [] });
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: "তোমার নাম friendall। তুমি একজন খুব কুল এবং আধুনিক বন্ধু। ডার্ক মোডে কথা বলতে পছন্দ করো। সবসময় সহজ বাংলায় কথা বলবে।"
+        });
 
-    window.sendMessage = async function() {
-        const input = document.getElementById("user-input");
-        const text = input.value.trim();
-        if (!text) return;
+        window.ask = async () => {
+            const input = document.getElementById("userInput");
+            const msgDiv = document.getElementById("messages");
+            const text = input.value.trim();
+            if(!text) return;
 
-        appendMessage("user", text);
-        input.value = "";
-        document.getElementById("typing-status").style.display = "block";
+            msgDiv.innerHTML += `<div class="msg user">${text}</div>`;
+            input.value = "";
+            msgDiv.scrollTop = msgDiv.scrollHeight;
 
-        try {
-            const result = await chat.sendMessage(text);
-            const response = await result.response;
-            document.getElementById("typing-status").style.display = "none";
-            appendMessage("bot", response.text());
-        } catch (error) {
-            document.getElementById("typing-status").style.display = "none";
-            appendMessage("bot", "দোস্ত, নেটে সমস্যা হচ্ছে। লিঙ্কটা ঠিকঠাক কাজ করছে তো?");
-        }
-    };
-
-    function appendMessage(sender, text) {
-        const chatWindow = document.getElementById("chat-window");
-        const msgDiv = document.createElement("div");
-        msgDiv.className = `message ${sender}`;
-        msgDiv.innerText = text;
-        chatWindow.appendChild(msgDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-</script>
-
+            try {
+                const result = await model.generateContent(text);
+                const response = await result.response;
+                msgDiv.innerHTML += `<div class="msg bot">${response.text()}</div>`;
+            } catch (e) {
+                msgDiv.innerHTML += `<div class="msg bot">দোস্ত, ডার্ক মোডে নেটে একটু ঝামেলা হচ্ছে মনে হয়। Key-টা চেক কর তো!</div>`;
+                console.error(e);
+            }
+            msgDiv.scrollTop = msgDiv.scrollHeight;
+        };
+    </script>
 </body>
 </html>

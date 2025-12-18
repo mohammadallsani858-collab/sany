@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার আড্ডাবাজ বন্ধু</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e5ddd5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        .chat-container { width: 100%; max-width: 450px; height: 90vh; background: #fff; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-radius: 15px; overflow: hidden; }
+        
+        .header { background: #075e54; color: white; padding: 20px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+        
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; background: #efe7dd; gap: 15px; }
+        
+        .message { padding: 10px 15px; border-radius: 10px; max-width: 75%; font-size: 1rem; line-height: 1.4; position: relative; }
+        .user { align-self: flex-end; background: #dcf8c6; color: #000; border-bottom-right-radius: 2px; }
+        .bot { align-self: flex-start; background: #ffffff; color: #000; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        .input-area { display: flex; padding: 15px; background: #f0f0f0; border-top: 1px solid #ddd; }
+        input { flex: 1; padding: 12px; border: none; border-radius: 25px; outline: none; font-size: 1rem; }
+        button { background: #075e54; color: white; border: none; width: 45px; height: 45px; margin-left: 10px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        button:hover { background: #128c7e; }
+
+        /* লোডিং এনিমেশন */
+        .typing { font-style: italic; font-size: 0.8rem; color: #777; margin-bottom: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="header">🤖 আড্ডাবাজ বন্ধু</div>
+    <div id="chat-window">
+        <div class="message bot">কিরে বন্ধু! কী খবর? অনেক দিন পর দেখা হলো। আড্ডা দিবি?</div>
+    </div>
+    <div id="typing-status" class="typing" style="padding-left: 20px;">বন্ধু টাইপ করছে...</div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="এখানে লেখো..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">➔</button>
+    </div>
+</div>
+
+<script type="module">
+    // Google AI লাইব্রেরি ইমপোর্ট করা
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    // আপনার দেওয়া API Key এখানে সেট করা হয়েছে
+    const API_KEY = "AIzaSyAoL61-RHYQpw4mntkeyVUC2V_1n7L6Npo";
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    
+    // AI এর চরিত্র বা ব্যক্তিত্ব ঠিক করা
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "তুমি একজন খুব মজার এবং আন্তরিক বন্ধু। নাম 'বন্ধু'। তুমি সবসময় শুদ্ধ ও সহজ বাংলায় কথা বলবে। বন্ধুদের মতো আড্ডা দেবে।"
+    });
+
+    const chat = model.startChat({ history: [] });
+
+    // মেসেজ পাঠানোর ফাংশন
+    window.sendMessage = async function() {
+        const input = document.getElementById("user-input");
+        const chatWindow = document.getElementById("chat-window");
+        const typingStatus = document.getElementById("typing-status");
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        // আপনার মেসেজ স্ক্রিনে দেখানো
+        appendMessage("user", text);
+        input.value = "";
+        typingStatus.style.display = "block";
+
+        try {
+            const result = await chat.sendMessage(text);
+            const response = await result.response;
+            const reply = response.text();
+            
+            typingStatus.style.display = "none";
+            appendMessage("bot", reply);
+        } catch (error) {
+            console.error(error);
+            typingStatus.style.display = "none";
+            appendMessage("bot", "দোস্ত, নেটে বা এপিআই-তে একটু ঝামেলা হচ্ছে। নতুন কি ব্যবহার করে দেখ তো?");
+        }
+    };
+
+    window.handleKeyPress = function(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const chatWindow = document.getElementById("chat-window");
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `message ${sender}`;
+        msgDiv.innerText = text;
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+</script>
+
+</body>
+</html>

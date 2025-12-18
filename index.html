@@ -2,140 +2,203 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>friendall - আমার AI বন্ধু</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bus Star BD - friendall Edition</title>
     <style>
-        /* পুরো স্ক্রিন কালো ব্যাকগ্রাউন্ড */
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #121212; 
-            display: flex; 
-            justify-content: center; 
-            padding: 20px; 
-            margin: 0;
-        }
-        .chat-box { 
-            width: 100%; 
-            max-width: 450px; 
-            background: #1e1e1e; 
-            border-radius: 15px; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            height: 90vh; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-        }
-        .header { 
-            background: #000000; 
-            color: #00ff88; 
-            padding: 15px; 
-            text-align: center; 
-            font-size: 1.3rem; 
-            font-weight: bold;
-            border-bottom: 1px solid #333;
-        }
-        #messages { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            background: #121212; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-        }
-        .msg { 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            max-width: 80%; 
-            line-height: 1.5;
-            font-size: 1rem;
-        }
-        .user { 
-            align-self: flex-end; 
-            background: #005c4b; 
-            color: white; 
-            border-bottom-right-radius: 2px; 
-        }
-        .bot { 
-            align-self: flex-start; 
-            background: #262626; 
-            color: #e0e0e0; 
-            border-bottom-left-radius: 2px; 
-        }
-        .input-area { 
-            display: flex; 
-            padding: 15px; 
-            background: #1e1e1e; 
-            border-top: 1px solid #333;
-        }
-        input { 
-            flex: 1; 
-            padding: 12px; 
-            border: 1px solid #444; 
-            border-radius: 25px; 
-            outline: none; 
-            background: #2a2a2a;
-            color: white;
-            padding-left: 20px;
-        }
-        button { 
-            background: #00ff88; 
-            color: #000; 
-            border: none; 
-            padding: 10px 20px; 
-            margin-left: 10px; 
-            cursor: pointer; 
-            border-radius: 25px; 
-            font-weight: bold; 
-            transition: 0.3s;
-        }
-        button:hover { background: #00cc6e; }
+        :root { --neon: #00ff88; --bg: #0a0a0a; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; }
+        
+        /* 1. Loading Screen */
+        #loading { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        .logo { font-size: 50px; font-weight: bold; color: var(--neon); text-shadow: 0 0 20px var(--neon); }
+        .loader { width: 220px; height: 10px; background: #222; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .bar { width: 0%; height: 100%; background: var(--neon); transition: 0.1s; }
+
+        /* 2. Menu UI */
+        .screen { display: none; position: absolute; inset: 0; flex-direction: column; align-items: center; padding: 20px; background: radial-gradient(circle, #1a1a1a, #000); overflow-y: auto; }
+        .active { display: flex; }
+        .money-tag { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 30px; border: 2px solid gold; color: gold; font-weight: bold; font-size: 20px; z-index: 100; }
+        
+        .btn { width: 85%; max-width: 300px; background: var(--neon); color: black; padding: 15px; border-radius: 30px; border: none; font-weight: bold; margin: 10px 0; cursor: pointer; font-size: 16px; }
+        .btn-locked { background: #333; color: #777; cursor: not-allowed; }
+
+        /* 3. Gameplay UI */
+        #gameUI { display: none; position: fixed; inset: 0; pointer-events: none; }
+        .overlay-top { position: absolute; top: 20px; left: 20px; display: flex; gap: 15px; pointer-events: auto; }
+        .mini-map { width: 80px; height: 80px; background: rgba(255,255,255,0.1); border: 2px solid white; border-radius: 10px; position: relative; }
+        .map-icon { position: absolute; color: red; font-size: 12px; }
+
+        /* Controls */
+        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; pointer-events: auto; }
+        #wheel { width: 130px; height: 130px; background: url('https://img.icons8.com/ios-filled/150/ffffff/steering-wheel.png') no-repeat center; background-size: contain; transition: 0.1s; }
+        
+        .btn-side { width: 55px; height: 55px; background: rgba(0,0,0,0.6); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; cursor: pointer; pointer-events: auto; }
+        
+        .pedals { display: flex; gap: 15px; align-items: flex-end; }
+        .pedal { width: 75px; height: 110px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #444; }
+        
+        /* Effects */
+        #rainEffect { position: fixed; inset: 0; pointer-events: none; display: none; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.3; }
+        .wiper { position: absolute; bottom: 40%; left: 50%; width: 150px; height: 5px; background: black; transform-origin: left; display: none; }
+        .wiper-anim { animation: wipe 1.5s infinite linear; display: block; }
+        @keyframes wipe { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(110deg); } }
+
+        /* Dance Screen */
+        #danceScreen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
+        .driver-box { font-size: 80px; animation: danceAnim 0.5s infinite alternate; }
+        @keyframes danceAnim { from { transform: translateY(0); } to { transform: translateY(-30px); } }
     </style>
 </head>
 <body>
-    <div class="chat-box">
-        <div class="header">🤖 friendall</div>
-        <div id="messages">
-            <div class="msg bot">হ্যালো! আমি <b>friendall</b>। ডার্ক মোডে আড্ডা দিতে আমি তৈরি। কেমন আছ বন্ধু?</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="friendall-কে কিছু বলো..." onkeypress="if(event.key==='Enter') ask()">
-            <button onclick="ask()">➔</button>
+
+    <div id="loading">
+        <div class="logo">friendall</div>
+        <p>নতুন প্লেয়ার বোনাস ৳১০০০ যোগ হচ্ছে...</p>
+        <div class="loader"><div class="bar" id="loadBar"></div></div>
+    </div>
+
+    <div class="money-tag">৳ <span id="mVal">0</span></div>
+
+    <div id="menu" class="screen">
+        <h2 style="margin-top: 80px; color: var(--neon);">Bus Star Bangladesh</h2>
+        <button class="btn" onclick="startMode('career')">Career Mode (যাত্রী সেবা)</button>
+        <button class="btn" style="background:#444; color:white;" onclick="startMode('free')">Free Mode (অফলাইন)</button>
+        <button class="btn btn-locked">Multiplayer (Coming Soon)</button>
+        
+        <div style="margin-top: 20px; text-align: center; border: 1px solid #333; padding: 15px; border-radius: 15px;">
+            <p>আপনার গ্যারেজ</p>
+            <div style="display: flex; gap: 10px;">
+                <div style="width: 80px; height: 40px; background: green; border: 2px solid white;"></div>
+                <span>Local Bus (Free)</span>
+            </div>
         </div>
     </div>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+    <div id="gameUI">
+        <div id="rainEffect"></div>
+        <div class="wiper" id="wiperLine"></div>
 
-        // এখানে আপনার নতুন কপি করা Key-টি সাবধানে বসান
-        const API_KEY = "AIzaSyC0EfpDPaX9z47Z_MyOQ1Xn-2279DxxroA"; 
+        <div class="overlay-top">
+            <div class="mini-map">
+                <span class="map-icon" id="targetFlag" style="top:10px; right:10px;">🚩</span>
+                <span class="map-icon" style="bottom:5px; left:40%;">▲</span>
+            </div>
+            <div class="btn-side" style="background: orange;" onclick="towTruck()">🛻</div>
+            <div class="btn-side" style="background: #333;" onclick="changeCam()">🎥</div>
+        </div>
 
-        const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            systemInstruction: "তোমার নাম friendall। তুমি একজন খুব কুল এবং আধুনিক বন্ধু। ডার্ক মোডে কথা বলতে পছন্দ করো। সবসময় সহজ বাংলায় কথা বলবে।"
-        });
+        <div style="position: absolute; right: 20px; top: 120px; display: flex; flex-direction: column; gap: 8px;">
+            <div class="btn-side" onclick="toggleLights()">💡</div>
+            <div class="btn-side" onclick="toggleRain()">☁️</div>
+            <div class="btn-side" onclick="toggleWiper()">🚿</div>
+            <div class="btn-side" style="background:gold; color:black;" onclick="playHorn(1)">H1</div>
+            <div class="btn-side" style="background:gold; color:black;" onclick="playHorn(2)">H2</div>
+        </div>
 
-        window.ask = async () => {
-            const input = document.getElementById("userInput");
-            const msgDiv = document.getElementById("messages");
-            const text = input.value.trim();
-            if(!text) return;
+        <div class="controls">
+            <div id="wheel"></div>
+            <div class="pedals">
+                <div class="pedal" style="background: #b71c1c; height: 70px;" onclick="hardBrake()">HARD<br>BRK</div>
+                <div class="pedal" style="background: #1b5e20;">RACE</div>
+            </div>
+        </div>
+    </div>
 
-            msgDiv.innerHTML += `<div class="msg user">${text}</div>`;
-            input.value = "";
-            msgDiv.scrollTop = msgDiv.scrollHeight;
+    <div id="danceScreen">
+        <div class="driver-box">🕺</div>
+        <h2 style="color: gold;">ড্রাইভার নাচছে!</h2>
+        <p>যাত্রীরা আনন্দিত (+৳১০ বোনাস)</p>
+        <button class="btn" onclick="stopDance()">নাচ থামিয়ে বাস চালান</button>
+    </div>
 
-            try {
-                const result = await model.generateContent(text);
-                const response = await result.response;
-                msgDiv.innerHTML += `<div class="msg bot">${response.text()}</div>`;
-            } catch (e) {
-                msgDiv.innerHTML += `<div class="msg bot">দোস্ত, ডার্ক মোডে নেটে একটু ঝামেলা হচ্ছে মনে হয়। Key-টা চেক কর তো!</div>`;
-                console.error(e);
+    <script>
+        // Game State
+        let money = 1000; // New player bonus
+        let currentMode = '';
+        let rainOn = false;
+        let wiperOn = false;
+        let lightsOn = false;
+
+        // Init Loading
+        let p = 0;
+        let loadInt = setInterval(() => {
+            p += 2;
+            document.getElementById('loadBar').style.width = p + "%";
+            if(p >= 100) {
+                clearInterval(loadInt);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('menu').classList.add('active');
+                updateMoney();
             }
-            msgDiv.scrollTop = msgDiv.scrollHeight;
-        };
+        }, 50);
+
+        function updateMoney() {
+            document.getElementById('mVal').innerText = money;
+        }
+
+        function startMode(mode) {
+            currentMode = mode;
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('gameUI').style.display = 'block';
+            
+            if(mode === 'career') {
+                alert("Career Mode: টার্মিনাল থেকে যাত্রী তুলুন এবং গন্তব্যে নামিয়ে দিন।");
+            } else {
+                alert("Free Mode: এটি অফলাইন মোড, এখানে কোনো যাত্রী থাকবে না।");
+            }
+        }
+
+        function toggleRain() {
+            rainOn = !rainOn;
+            document.getElementById('rainEffect').style.display = rainOn ? 'block' : 'none';
+        }
+
+        function toggleWiper() {
+            wiperOn = !wiperOn;
+            document.getElementById('wiperLine').className = wiperOn ? 'wiper wiper-anim' : 'wiper';
+        }
+
+        function toggleLights() {
+            lightsOn = !lightsOn;
+            alert(lightsOn ? "Headlights ON" : "Headlights OFF");
+        }
+
+        function playHorn(type) {
+            alert("হর্ন " + type + " বাজছে!");
+        }
+
+        function hardBrake() {
+            alert("হার্ড ব্রেক দেওয়া হয়েছে! বাস থেমে গেছে।");
+            document.getElementById('danceScreen').style.display = 'flex';
+        }
+
+        function stopDance() {
+            money += 10;
+            updateMoney();
+            document.getElementById('danceScreen').style.display = 'none';
+        }
+
+        function towTruck() {
+            if(money >= 50) {
+                money -= 50;
+                updateMoney();
+                alert("টয় ট্রাক (🛻) বাসটি উদ্ধার করেছে। ৳৫০ কাটা হলো।");
+            } else {
+                alert("আপনার কাছে পর্যাপ্ত টাকা নেই!");
+            }
+        }
+
+        function changeCam() {
+            alert("ক্যামেরা অ্যাঙ্গেল পরিবর্তন হচ্ছে...");
+        }
+
+        // Steering Wheel Simulation
+        let angle = 0;
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowLeft') angle -= 20;
+            if(e.key === 'ArrowRight') angle += 20;
+            document.getElementById('wheel').style.transform = `rotate(${angle}deg)`;
+        });
     </script>
 </body>
 </html>
